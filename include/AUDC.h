@@ -20,6 +20,7 @@
 typedef unsigned short int AudcWChar;
 typedef void* AudcHandle;
 typedef long AudcInteger;
+typedef double AudcDouble;
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,13 +51,16 @@ enum AudcStatusCode
 	AudcBufferIsEmpty = 0x0013 | AudcError,
 	AudcHasNoReturnValue = 0x0014 | AudcError,
 	AudcInvalidPropertyType = 0x0015 | AudcError,
+	AudcFailedToLink = 0x0016 | AudcError,
+	AudcFailedToUnlink = 0x0017 | AudcError,
 	AudcOperationSuccesfull = 0x0000
 };
 
 
 enum AudcPropertyType
 {
-	AudcRange,
+	AudcRangeInt,
+	AudcRangeDouble,
 	AudcEnumeration,
 	AudcAction
 };
@@ -84,6 +88,8 @@ struct AudcRangeProperty
 {
     AudcInteger minValue;
     AudcInteger maxValue;
+	AudcDouble minValueDouble;
+	AudcDouble maxValueDouble;
 };
 
 
@@ -117,11 +123,12 @@ typedef AudcStatusCode(*audcCBDeviceListUpdated)( void *d );
 typedef AudcStatusCode(*audcCBDeviceArrived)(AudcHandle arrivedDeviceHandle, void *d );
 typedef AudcStatusCode(*audcCBDeviceRemoved)(AudcHandle removedDeviceHandle, void *d );
 typedef AudcStatusCode(*audcCBFrameArrived)( AudcHandle deviceHandle, AudcHandle bufferHandle, AudcInteger rasterSize , void *d );
+typedef AudcStatusCode(*audcCBStillCaptureFrame)( AudcHandle deviceHandle, AudcHandle bufferHandle, AudcInteger rasterSize , void *d );
 typedef AudcStatusCode(*audcCBModeChanged)(AudcHandle deviceHandle, AudcHandle newMode, void *d );
 typedef AudcStatusCode(*audcCBPropertyChanged)(AudcHandle deviceHandle, AudcHandle propertyHandle, void *d);
 typedef void (*audcMappingFunctionType)(AudcInteger value, AudcInteger * mapped );
 typedef AudcStatusCode(*audcCBWhiteBalance)(AudcInteger gain[3], void *d); 
-typedef AudcStatusCode(*audcCBHistogram)(AudcInteger aHistY[256], AudcInteger aHistR[256], AudcInteger aHistG[256], AudcInteger aHistB[256],void *d); //todo
+typedef AudcStatusCode(*audcCBHistogram)(AudcInteger aHistY[256], AudcInteger aHistR[256], AudcInteger aHistG[256], AudcInteger aHistB[256],void *d); //NOT IMPLEMENTED
 typedef AudcStatusCode(*audcCBUpdateDeviceProperty)(AudcHandle deviceHandle,void *d );
 typedef AudcStatusCode(*audcCBPropertyStateChanged)(AudcHandle deviceHandle, AudcHandle propertyHandle, AudcPropertyState state, void *d);
 
@@ -134,9 +141,12 @@ AudcStatusCode AUDCAPI audcDevicePropertiesCount( AudcHandle deviceHandle, AudcI
 AudcStatusCode AUDCAPI audcGetDeviceProperty( AudcInteger position, AudcHandle deviceHandle, AudcHandle *propertyHandle );
 
 AudcStatusCode AUDCAPI audcGetPropertyInformation( AudcHandle propertyHandle, AudcPropertyInfo **info );
-AudcStatusCode AUDCAPI audcGetPropertyValue( AudcHandle propertyHandle, AudcInteger *value );
-AudcStatusCode AUDCAPI audcGetDefaultPropertyValue( AudcHandle propertyHandle, AudcInteger *value );
-AudcStatusCode AUDCAPI audcSetPropertyValue( AudcHandle propertyHandle, AudcInteger value );
+AudcStatusCode AUDCAPI audcGetPropertyValueInteger( AudcHandle propertyHandle, AudcInteger *value );
+AudcStatusCode AUDCAPI audcGetPropertyValueDouble( AudcHandle propertyHandle, AudcDouble *value );
+AudcStatusCode AUDCAPI audcGetDefaultPropertyValueInterger( AudcHandle propertyHandle, AudcInteger *value );
+AudcStatusCode AUDCAPI audcGetDefaultPropertyValueDouble( AudcHandle propertyHandle, AudcDouble *value );
+AudcStatusCode AUDCAPI audcSetPropertyValueInteger( AudcHandle propertyHandle, AudcInteger value );
+AudcStatusCode AUDCAPI audcSetPropertyValueDouble( AudcHandle propertyHandle, AudcDouble value );
 AudcStatusCode AUDCAPI audcExecActionProperty( AudcHandle propertyHandle );
 AudcStatusCode AUDCAPI audcStopPropertyExec( AudcHandle propertyHandle );
 AudcStatusCode AUDCAPI audcGetPropertyMapper( AudcHandle propertyHandle, audcMappingFunctionType * mapFunction );
@@ -151,26 +161,41 @@ AudcStatusCode AUDCAPI audcSetCurrentMode( AudcHandle deviceHandle,  AudcHandle 
 
 AudcStatusCode AUDCAPI audcStartStream( AudcHandle deviceHandle );
 AudcStatusCode AUDCAPI audcStopStream( AudcHandle deviceHandle );
+AudcStatusCode AUDCAPI audcStillCapture( AudcHandle deviceHandle );
+AudcStatusCode AUDCAPI audcIsStillCaptureSupported( AudcHandle deviceHande, bool * supported );
 AudcStatusCode AUDCAPI audcGetFrame( AudcHandle deviceHandle, AudcInteger *bufferSize, void **data );
 
 AudcStatusCode AUDCAPI audcRegisterDeviceListUpdatedCB(audcCBDeviceListUpdated func, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterDeviceListUpdatedCB(audcCBDeviceListUpdated func );
+
 AudcStatusCode AUDCAPI audcRegisterDeviceArrivedCB( audcCBDeviceArrived func, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterDeviceArrivedCB( audcCBDeviceArrived func );
+
 AudcStatusCode AUDCAPI audcRegisterDeviceRemovedCB( audcCBDeviceRemoved func, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterDeviceRemovedCB( audcCBDeviceRemoved func );
+
 AudcStatusCode AUDCAPI audcRegisterFrameArrivedCB( audcCBFrameArrived func, AudcHandle deviceHandle, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterFrameArrivedCB( audcCBFrameArrived func, AudcHandle deviceHandle );
+
+AudcStatusCode AUDCAPI audcRegisterStillCaptureFrameArrivedCB( audcCBStillCaptureFrame func, AudcHandle deviceHandle, void * ctx );
+AudcStatusCode AUDCAPI audcUnregisterStillCaptureFrameArrivedCB( audcCBStillCaptureFrame func, AudcHandle deviceHandle );
+
+
 AudcStatusCode AUDCAPI audcRegisterModeChangedCB( audcCBModeChanged func, AudcHandle deviceHandle, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterModeChangedCB( audcCBModeChanged func, AudcHandle deviceHandle );
+
 AudcStatusCode AUDCAPI audcRegisterPropertyChangedCB( audcCBPropertyChanged func, AudcHandle propertyHandle, void * ctx);
 AudcStatusCode AUDCAPI audcUnregisterPropertyChangedCB( audcCBPropertyChanged func, AudcHandle propertyHandle);
+
 AudcStatusCode AUDCAPI audcRegisterWhiteBalanceCB( audcCBWhiteBalance func, AudcHandle deviceHandle, void * ctx);
 AudcStatusCode AUDCAPI audcUnregisterWhiteBalanceCB( audcCBWhiteBalance func, AudcHandle deviceHandle );
+
 AudcStatusCode AUDCAPI audcRegisterHistogramCB( audcCBHistogram func, AudcHandle deviceHandle, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterHistogramCB( audcCBHistogram func, AudcHandle deviceHandle );
+
 AudcStatusCode AUDCAPI audcRegisterDeviceUpdatePropertiesCB( audcCBUpdateDeviceProperty func, AudcHandle deviceHandle, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterDeviceUpdatePropertiesCB( audcCBUpdateDeviceProperty func, AudcHandle deviceHandle );
+
 AudcStatusCode AUDCAPI audcRegisterPropertyStateChangedCB( audcCBPropertyStateChanged func, AudcHandle deviceHandle, void * ctx );
 AudcStatusCode AUDCAPI audcUnregisterPropertyStateChangedCB( audcCBPropertyStateChanged func, AudcHandle deviceHandle );
 
