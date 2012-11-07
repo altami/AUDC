@@ -10,33 +10,28 @@ typedef void* AudcHandle;
 typedef long AudcInteger;
 typedef double AudcDouble;
 
-enum AudcErrorType
-{
-	AudcError = 0x1000,
-};
-
 enum AudcStatusCode
 {
-	AudcBadStream = 0x0001 | AudcError,
-	AudcBadCamera = 0x0002 | AudcError,
-	AudcDeviceAlreadyIsLinked = 0x0003 | AudcError,
-	AudcDeviceNotLinkedYet = 0x0004 | AudcError,
-	AudcBadHandle = 0x0005 | AudcError,
-	AudcCallBackAlreadyRegistred = 0x0006 | AudcError,
-	AudcCallBackNotRegistred = 0x0007 | AudcError,
-	AudcUnknownError = 0x0008 | AudcError,
-	AudcPropertyListIsEmpty = 0x0009 | AudcError,
-	AudcInvalidPosition = 0x0010 | AudcError,
-	AudcCannotRunStream = 0x0100 | AudcError,
-	AudcCannotStopStream = 0x0101 | AudcError,
-	AudcCannotTakeSnapshot = 0x0102| AudcError,
-	AudcBufferIsEmpty = 0x0103 | AudcError,
-	AudcStreamInternalError = 0x0104 | AudcError,
-	AudcStillPinNotSupported = 0x0104 | AudcError,
-	AudcInvalidPropertyType = 0x0016 | AudcError,
-	AudcFailedToLink = 0x0017 | AudcError,
-	AudcFailedToUnlink = 0x0018 | AudcError,
-	AudcOperationSuccesfull = 0x0000
+	AudcOperationSuccesfull,
+	AudcBadStream,
+	AudcBadCamera ,
+	AudcDeviceAlreadyIsLinked,
+	AudcDeviceNotLinkedYet,
+	AudcBadHandle,
+	AudcCallBackAlreadyRegistred,
+	AudcCallBackNotRegistred,
+	AudcUnknownError,
+	AudcPropertyListIsEmpty,
+	AudcInvalidPosition,
+	AudcCannotRunStream,
+	AudcCannotStopStream,
+	AudcCannotTakeSnapshot,
+	AudcBufferIsEmpty,
+	AudcStreamInternalError,
+	AudcStillPinNotSupported,
+	AudcInvalidPropertyType,
+	AudcFailedToLink,
+	AudcFailedToUnlink,
 };
 
 enum AudcPropertyType
@@ -56,7 +51,7 @@ enum AudcPropertyState
 enum AudcPropID
 {
 	//exposure
-	audcPropID_ExposureAuto = 0,
+	audcPropID_ExposureAuto = 0x0000,
 	audcPropID_ExposureTarget,
 	audcPropID_ExposureGain,
 	audcPropID_ExposureTime,
@@ -80,11 +75,11 @@ enum AudcPropID
 	audcPropID_VignetEnable,
 
 	//roi
-	audcPropID_ShowRect,
-	audcPropID_RectLeft,
-	audcPropID_RectRight,
-	audcPropID_RectBottom,
-	audcPropID_RectTop,
+// 	audcPropID_ShowRect,
+// 	audcPropID_RectLeft,
+// 	audcPropID_RectRight,
+// 	audcPropID_RectBottom,
+// 	audcPropID_RectTop,
 
 	//misc
 	audcPropID_FlipH,
